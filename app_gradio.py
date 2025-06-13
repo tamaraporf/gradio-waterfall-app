@@ -42,7 +42,7 @@ def iniciar_app(producao=True):
             return f"Erro ao gerar gráfico: {str(e)}"
 
     with gr.Blocks() as demo:
-        gr.Markdown("### SHAP Waterfall por Campanha")
+        gr.Markdown("## MARTECH - Waterfall por Campanha")
 
         with gr.Row():
             dropdown = gr.Dropdown(choices=campanhas, label="Escolha a campanha")
@@ -55,21 +55,23 @@ def iniciar_app(producao=True):
 
     return demo
 
+demo = iniciar_app()
+demo.launch()
 
-if __name__ == "__main__":
-    with gr.Blocks() as chooser:
-        gr.Markdown("## Inicializar App")
-
-        modo = gr.Radio(choices=["Usar modelo salvo", "Treinar novo modelo"], label="Modo de execução")
-        btn = gr.Button("Iniciar")
-        saida = gr.HTML()
-
-        def iniciar(modo_escolhido):
-            producao = modo_escolhido == "Usar modelo salvo"
-            demo = iniciar_app(producao=producao)
-            demo.launch(share=True)
-            return "App iniciado com sucesso!"
-
-        btn.click(iniciar, inputs=modo, outputs=saida)
-
-    chooser.launch()
+# if __name__ == "__main__":
+#     with gr.Blocks() as chooser:
+#         gr.Markdown("## Inicializar App")
+#
+#         modo = gr.Radio(choices=["Usar modelo salvo", "Treinar novo modelo"], label="Modo de execução")
+#         btn = gr.Button("Iniciar")
+#         saida = gr.HTML()
+#
+#         def iniciar(modo_escolhido):
+#             producao = modo_escolhido == "Usar modelo salvo"
+#             demo = iniciar_app(producao=producao)
+#             demo.launch(share=True)
+#             return "App iniciado com sucesso!"
+#
+#         btn.click(iniciar, inputs=modo, outputs=saida)
+#
+#     chooser.launch(share=True)
