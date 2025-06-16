@@ -24,8 +24,6 @@ def get_data(df, col_interest):
             return 'META'
         elif tipo in ['PMAX']:
             return 'PMAX'
-        elif tipo in ['DV360']:
-            return 'DV360'
         elif tipo in ['DEMAND GEN']:
             return 'DEMAND GEN'
         else:

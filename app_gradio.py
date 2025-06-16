@@ -1,5 +1,3 @@
-# app_gradio.py
-
 import os
 import pandas as pd
 import gradio as gr
@@ -58,20 +56,3 @@ def iniciar_app(producao=True):
 demo = iniciar_app()
 demo.launch()
 
-# if __name__ == "__main__":
-#     with gr.Blocks() as chooser:
-#         gr.Markdown("## Inicializar App")
-#
-#         modo = gr.Radio(choices=["Usar modelo salvo", "Treinar novo modelo"], label="Modo de execução")
-#         btn = gr.Button("Iniciar")
-#         saida = gr.HTML()
-#
-#         def iniciar(modo_escolhido):
-#             producao = modo_escolhido == "Usar modelo salvo"
-#             demo = iniciar_app(producao=producao)
-#             demo.launch(share=True)
-#             return "App iniciado com sucesso!"
-#
-#         btn.click(iniciar, inputs=modo, outputs=saida)
-#
-#     chooser.launch(share=True)
