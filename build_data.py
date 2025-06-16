@@ -14,7 +14,7 @@ def get_data(df, col_interest):
     df_filtered = df[df[col_interest] > 0].copy()
 
     # Salva a coluna original TIPO
-    df_aux = df_filtered[['TIPO']].copy()
+    df_aux = df_filtered[['TIPO', 'DATA']].copy()
 
     # Mapeia o grupo da campanha e agrupa
     def map_grupo(tipo):
