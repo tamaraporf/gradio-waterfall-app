@@ -4,26 +4,29 @@ import pandas as pd
 
 
 CLASS_TO_CODE = {
-    'ExtraTreesRegressor': 'et',
-    'RandomForestRegressor': 'rf',
-    'XGBRegressor': 'xgboost',
-    'LGBMRegressor': 'lightgbm',
-    'CatBoostRegressor': 'catboost',
-    'DecisionTreeRegressor': 'dt',
-    'LinearRegression': 'lr',
+    "ExtraTreesRegressor": "et",
+    "RandomForestRegressor": "rf",
+    "XGBRegressor": "xgboost",
+    "LGBMRegressor": "lightgbm",
+    "CatBoostRegressor": "catboost",
+    "DecisionTreeRegressor": "dt",
+    "LinearRegression": "lr",
 }
 
+
 def get_model(df_filtered):
-    df_filtered_aux = df_filtered['TIPO']
-    df_filtered = df_filtered.drop(['TIPO'], axis=1)
-    setup(df_filtered, target='CPMAT', session_id=42, verbose=False)
+    df_filtered_aux = df_filtered["TIPO"]
+    df_filtered = df_filtered.drop(["TIPO"], axis=1)
+    setup(df_filtered, target="CPMAT", session_id=42, verbose=False)
     model_obj = compare_models()
     model_class = type(model_obj).__name__
     model_code = CLASS_TO_CODE.get(model_class)
     print(f"\n Melhor modelo: {model_class}")
     print(f"\n Código do modelo: {model_code}")
     if not model_code:
-        print("Modelo vencedor não encontrado na lista. Retornando o modelo treinado diretamente.")
+        print(
+            "Modelo vencedor não encontrado na lista. Retornando o modelo treinado diretamente."
+        )
         return model_obj
 
     model_winner = create_model(model_code)
@@ -33,7 +36,7 @@ def get_model(df_filtered):
 def visualize_model_performance(model_winner):
     plt.rcParams["font.family"] = "DejaVu Sans"
     print("\n\t-> Plotando importância das features:")
-    plot_model(model_winner, plot='feature')
+    plot_model(model_winner, plot="feature")
 
     print("\n\t -> Interpretando modelo com SHAP:")
     interpret_model(model_winner)
@@ -42,12 +45,12 @@ def visualize_model_performance(model_winner):
 
 def calculate_shap_values(model_winner):
     # dados de treino
-    X_train = get_config('X_train')
-    y_train = get_config('y_train')
+    X_train = get_config("X_train")
+    y_train = get_config("y_train")
 
     # dados de teste
-    X_test = get_config('X_test')
-    y_test = get_config('y_test')
+    X_test = get_config("X_test")
+    y_test = get_config("y_test")
 
     # dados transformados de teste, usados para treinar
     X_test_transformed = get_config("X_test_transformed")
@@ -66,7 +69,8 @@ def calculate_shap_values(model_winner):
         # Para cada registro, associe os valores SHAP com os valores da feature original
         row_data = {
             "base_value": shap_values.base_values[i],  # Valor base
-            "predicted_value": shap_values.values[i].sum() + shap_values.base_values[i],  # Predição via SHAP
+            "predicted_value": shap_values.values[i].sum()
+            + shap_values.base_values[i],  # Predição via SHAP
         }
 
         # Adiciona os valores SHAP e as variáveis originais
