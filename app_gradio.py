@@ -4,7 +4,7 @@ import gradio as gr
 
 from build_data import load_data, get_data, transformer_data
 from model import get_model, calculate_shap_values
-from visualizations import plot_shap_waterfall_percentual_by_campanha2
+from visualizations import plot_shap_waterfall_percentual_by_campanha2, plot_shap_waterfall_by_campanha
 
 SHAP_FILE = "shap_values.parquet"
 
@@ -37,11 +37,12 @@ def preparar_dados(producao=True):
 # def iniciar_app(producao=True):
 #     df_shap_values = preparar_dados(producao)
 #     campanhas = sorted(df_shap_values["TIPO_CAMPANHA"].dropna().unique())
+#     datas = sorted(df_shap_values["DATA"].dropna().unique())
 #
-#     def gerar_grafico(campanha_escolhida, limite=150):
+#     def gerar_grafico(campanha_escolhida, data_escolhida, limite=150):
 #         try:
-#             image = plot_shap_waterfall_percentual_by_campanha2(
-#                 df_shap_values, campanha_escolhida, limite
+#             image, _ = plot_shap_waterfall_by_campanha(
+#                 df_shap_values, campanha_escolhida, data_escolhida, limite
 #             )
 #             return image
 #         except Exception as e:
@@ -51,7 +52,8 @@ def preparar_dados(producao=True):
 #         gr.Markdown("## MARTECH - Waterfall por Campanha")
 #
 #         with gr.Row():
-#             dropdown = gr.Dropdown(choices=campanhas, label="Escolha a campanha")
+#             dropdown_campanha = gr.Dropdown(choices=campanhas, label="Escolha a campanha")
+#             dropdown_data = gr.Dropdown(choices=datas, label="Escolha a data")
 #             slider = gr.Slider(
 #                 minimum=0, maximum=500, value=150, label="Limite mínimo SHAP (absoluto)"
 #             )
@@ -59,22 +61,35 @@ def preparar_dados(producao=True):
 #         output = gr.Image(type="pil")
 #         btn = gr.Button("Gerar Gráfico")
 #
-#         btn.click(fn=gerar_grafico, inputs=[dropdown, slider], outputs=output)
+#         btn.click(
+#             fn=gerar_grafico,
+#             inputs=[dropdown_campanha, dropdown_data, slider],
+#             outputs=output
+#         )
 #
 #     return demo
-#
-#
-# demo = iniciar_app()
-# demo.launch()
 
 def iniciar_app(producao=True):
     df_shap_values = preparar_dados(producao)
+    df_shap_values["TIPO_CAMPANHA"] = df_shap_values["TIPO_CAMPANHA"].str.strip().str.upper()
+    df_shap_values["DATA"] = pd.to_datetime(df_shap_values["DATA"])
+
     campanhas = sorted(df_shap_values["TIPO_CAMPANHA"].dropna().unique())
-    datas = sorted(df_shap_values["DATA"].dropna().unique())
+
+    def atualizar_datas(campanha_escolhida):
+        datas = (
+            df_shap_values[df_shap_values["TIPO_CAMPANHA"] == campanha_escolhida]["DATA"]
+            .dt.strftime("%Y-%m-%d")
+            .unique()
+        )
+        return gr.update(choices=sorted(datas))
 
     def gerar_grafico(campanha_escolhida, data_escolhida, limite=150):
         try:
-            image, _ = plot_shap_waterfall_percentual_by_campanha2(
+            # Converte string para datetime se necessário
+            if isinstance(data_escolhida, str):
+                data_escolhida = pd.to_datetime(data_escolhida)
+            image, _ = plot_shap_waterfall_by_campanha(
                 df_shap_values, campanha_escolhida, data_escolhida, limite
             )
             return image
@@ -86,7 +101,7 @@ def iniciar_app(producao=True):
 
         with gr.Row():
             dropdown_campanha = gr.Dropdown(choices=campanhas, label="Escolha a campanha")
-            dropdown_data = gr.Dropdown(choices=datas, label="Escolha a data")
+            dropdown_data = gr.Dropdown(choices=[], label="Escolha a data")
             slider = gr.Slider(
                 minimum=0, maximum=500, value=150, label="Limite mínimo SHAP (absoluto)"
             )
@@ -94,6 +109,10 @@ def iniciar_app(producao=True):
         output = gr.Image(type="pil")
         btn = gr.Button("Gerar Gráfico")
 
+        # Atualiza datas quando a campanha é selecionada
+        dropdown_campanha.change(fn=atualizar_datas, inputs=dropdown_campanha, outputs=dropdown_data)
+
+        # Gera o gráfico ao clicar no botão
         btn.click(
             fn=gerar_grafico,
             inputs=[dropdown_campanha, dropdown_data, slider],
